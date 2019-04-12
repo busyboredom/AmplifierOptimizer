@@ -7,4 +7,4 @@ include_directories(include)
 #Or automatically:
 file(GLOB SOURCES "*.cpp")
  
-add_executable(Gooba ${SOURCES})
+add_executable(AmplifierOptimizer ${SOURCES})
