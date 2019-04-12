@@ -10,6 +10,7 @@ const int generations = 1000;
 const int population = 1000;
 
 int main() {
+
   set_context();
   Amplifier pop[population];
 }
