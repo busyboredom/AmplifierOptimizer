@@ -3,16 +3,17 @@
 #pragma once
 
 class Amplifier {
-  static unsigned int beta;
-  static unsigned int Rload;  // Ohms
-  static unsigned int Rsource;  // Ohms
-  static unsigned int max_Vcc;  // Volts
-  static unsigned int max_resistor; // Ogms
-  static float Vt;  // Volts
-  static float VBE;  // Volts
-
   private:
+    static unsigned int beta;
+    static unsigned int Rload;  // Ohms
+    static unsigned int Rsource;  // Ohms
+    static unsigned int max_Vcc;  // Volts
+    static unsigned int max_resistor; // Ogms
+    static float Vt;  // Volts
+    static float VBE;  // Volts
+
     // Design variables:
+    // TODO: Getters and setters for these.
     int Vcc;
     int R1;
     int R2;
@@ -23,6 +24,7 @@ class Amplifier {
     int Re2;
   
     // Performance Metrics:
+    // TODO: Getters (NO setters) for these, and functions to calculate them.
     float Rin;
     float Rout;
     float Vpp;
@@ -34,5 +36,8 @@ class Amplifier {
   public:
     explicit Amplifier();
       // Sets initial Vcc and resistor values to random values.
+
+    void Evaluate();
+    //TODO: Should calculate all the performance metrics. 
 
 };

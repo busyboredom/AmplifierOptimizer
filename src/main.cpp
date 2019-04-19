@@ -1,25 +1,58 @@
+#include "../include/main.hpp"
 #include "../include/amplifier.hpp"
+#include <iostream>
+#include <algorithm>
+#include <array>
 
-const int beta = 250;
-const float Vt = 0.026;  // Volts
-const int Rload = 1000;  // Ohms
-const float VBE = 0.7;  // Volts
-const int Rsource = 1000;  // Ohms
+unsigned int Amplifier::beta = parameters::beta;  // Ic/Ib
+unsigned int Amplifier::Rload = parameters::Rload;  // Ohms
+unsigned int Amplifier::Rsource = parameters::Rsource;  // Ohms
+unsigned int Amplifier::max_Vcc = parameters::max_Vcc;  // Volts
+unsigned int Amplifier::max_resistor = parameters::max_resistor; // Ohms
+float Amplifier::Vt = parameters::Vt;  // Volts
+float Amplifier::VBE = parameters::VBE;  // Volts
 
-const int generations = 1000;
-const int population = 1000;
 
 int main() {
+  std::array<Amplifier, parameters::population>  pop;  // Initialize population.
+  
+  // Evolve the population.
+  geneticAlgorithm(pop, parameters::generations);
 
-  set_context();
-  Amplifier pop[population];
+  // Print the best.
+  showBest(pop);
 }
 
-void set_context() {
-  // Set the appropriate static member variables in the amplifier class.
-  Amplifier::beta = beta;
-  Amplifier::Vt = Vt;
-  Amplifier::Rload = Rload;
-  Amplifier::VBE = VBE;
-  Amplifier::Rsource = Rsource;
+void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop), int generations) {
+  // Takes an array of amplifier objecs with some Evaluate() function, and 
+  // evolves them according to lossFunction().
+  
+  for (unsigned int i = 0; i < generations; i++) {
+    // Sort the population from worst to best.
+    std::sort(pop.begin(), pop.end(), sortByPerformance);
+
+    // Regenerate the first half from the second half.
+    // TODO
+
+    // Evaluate population.
+    for (Amplifier amp : pop) {
+      // TODO: Thread this.
+      amp.Evaluate();
+    };
+  };
+}
+
+  
+
+bool sortByPerformance(const Amplifier &amp1, const Amplifier &amp2) {
+  // TODO
+  return true;
+}
+
+float lossFunction(Amplifier amp) {
+  // TODO
+}
+
+void showBest(Amplifier pop[parameters::population]){
+  // TODO
 }
