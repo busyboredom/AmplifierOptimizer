@@ -1,4 +1,4 @@
-#include "../include/amplifier.cpp"
+#include "../include/amplifier.hpp"
 
 const int beta = 250;
 const float Vt = 0.026;  // Volts

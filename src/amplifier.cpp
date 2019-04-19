@@ -1,11 +1,11 @@
-// TODO: BJT amplifier class
-//Hello world
+// A cascaded BJT amplifier.
+
 class Amplifier{
-    static int beta = 250;
-    static float Vt = 0.026;  // Volts
-    static int Rload = 1000;  // Ohms
-    static float VBE = 0.7;  // Volts
-    static int Rsource = 1000;  // Ohms
+    static int beta;
+    static float Vt;  // Volts
+    static int Rload;  // Ohms
+    static float VBE;  // Volts
+    static int Rsource;  // Ohms
 
 private:
     int Vcc;
