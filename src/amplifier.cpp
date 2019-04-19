@@ -1,21 +1,23 @@
 // A cascaded BJT amplifier.
 
-class Amplifier{
-    static int beta;
-    static float Vt;  // Volts
-    static int Rload;  // Ohms
-    static float VBE;  // Volts
-    static int Rsource;  // Ohms
+#include "../include/amplifier.hpp"
+#include <random>
 
-private:
-    int Vcc;
-    int R1;
-    int R2;
-    int R3;
-    int R4;
-    int Rc1;
-    int Re1;
-    int Re2;
+Amplifier::Amplifier() {
+  // Set up random number generation.
+  std::random_device rd;  // Get random number from hardware.
+  std::mt19937 eng(rd());  // Seed the generator.
+  // Define Distributions.
+  std::uniform_int_distribution<> resistor_distribution(0, max_resistor);
+  std::uniform_int_distribution<> Vcc_distribution(0, max_Vcc);
 
-    
-};
+  // Set random Vcc and resistor values.
+  Vcc = Vcc_distribution(eng);
+  R1 = resistor_distribution(eng);
+  R2 = resistor_distribution(eng);
+  R3 = resistor_distribution(eng);
+  R4 = resistor_distribution(eng);
+  Rc1 = resistor_distribution(eng);
+  Re1 = resistor_distribution(eng);
+  Re2 = resistor_distribution(eng);
+}
