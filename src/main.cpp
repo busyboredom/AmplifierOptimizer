@@ -1,5 +1,6 @@
 #include "../include/main.hpp"
 #include "../include/amplifier.hpp"
+#include "../include/config.hpp"
 #include <iostream>
 #include <algorithm>
 #include <array>
