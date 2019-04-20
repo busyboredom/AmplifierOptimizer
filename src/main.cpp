@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <array>
+#include <new>
 
 unsigned int Amplifier::beta = parameters::beta;  // Ic/Ib
 unsigned int Amplifier::Rload = parameters::Rload;  // Ohms
@@ -45,6 +46,7 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
     };
   };
   std::cout << "\nEvolution Complete." << std::endl;
+  pop;
 }
 
 void showBest(std::array<Amplifier, parameters::population>

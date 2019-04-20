@@ -28,7 +28,7 @@ Amplifier::Amplifier() {
 
 bool Amplifier::SortByPerformance(Amplifier const &amp1, Amplifier const &amp2) {
   // TODO: Write a loss function that can be used to compare two amplifiers.
-  return true;
+  return amp1.R1 > amp2.R1;
 }
 
 void Amplifier::Evaluate() {
