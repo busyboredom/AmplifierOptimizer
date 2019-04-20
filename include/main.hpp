@@ -15,20 +15,14 @@ namespace parameters {
   const float Vt = 0.026;  // Volts
   const float VBE = 0.7;  // Volts
 
-  const unsigned int generations = 1000;
-  const unsigned int population = 1000;
+  const unsigned int generations = 10000;
+  const unsigned int population = 10;
 }
 //-----------------------------------------------------------------------------
 
 void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop), int generations);
   // Takes an array of amplifier objecs with some Evaluate() function, and 
-  // evolves them according to lossFunction().
+  // evolves them according to Amplifier::SortByPerformance().
   
-bool sortByPerformance();
-  // Comparison of two amplifiers for sorting with std::sort.
-
-float lossFunction(Amplifier amp);
-  // User defined loss function for evaluation of amplifier performance.
-
 void showBest(std::array<Amplifier, parameters::population> (&pop));
   // Print the components and performance metrics of the best amplifier.

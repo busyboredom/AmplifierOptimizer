@@ -23,13 +23,17 @@ int main() {
   showBest(pop);
 }
 
-void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop), int generations) {
+void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
+                                                         int generations) {
   // Takes an array of amplifier objecs with some Evaluate() function, and 
   // evolves them according to lossFunction().
   
   for (unsigned int i = 0; i < generations; i++) {
+    
+    std::cout << "\rEvolving population: " << i * 100 / generations << "%";
+
     // Sort the population from worst to best.
-    std::sort(pop.begin(), pop.end(), sortByPerformance);
+    std::sort(pop.begin(), pop.end(), Amplifier::SortByPerformance);
 
     // Regenerate the first half from the second half.
     // TODO
@@ -40,19 +44,10 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop), int 
       amp.Evaluate();
     };
   };
+  std::cout << "\nEvolution Complete." << std::endl;
 }
 
-  
-
-bool sortByPerformance(const Amplifier &amp1, const Amplifier &amp2) {
-  // TODO
-  return true;
-}
-
-float lossFunction(Amplifier amp) {
-  // TODO
-}
-
-void showBest(Amplifier pop[parameters::population]){
+void showBest(std::array<Amplifier, parameters::population>
+                             (&pop)) {
   // TODO
 }

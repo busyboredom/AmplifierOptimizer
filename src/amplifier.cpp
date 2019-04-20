@@ -3,6 +3,8 @@
 #include "../include/amplifier.hpp"
 #include <random>
 
+#include <iostream>
+
 Amplifier::Amplifier() {
   // Set up random number generation.
   std::random_device rd;  // Get random number from hardware.
@@ -20,4 +22,16 @@ Amplifier::Amplifier() {
   Rc1 = resistor_distribution(eng);
   Re1 = resistor_distribution(eng);
   Re2 = resistor_distribution(eng);
+  
+  std::cout << "Amplifier Initialized\n";
 }
+
+bool Amplifier::SortByPerformance(Amplifier const &amp1, Amplifier const &amp2) {
+  // TODO: Write a loss function that can be used to compare two amplifiers.
+  return true;
+}
+
+void Amplifier::Evaluate() {
+  //TODO: Should calculate all the performance metrics.
+}
+
