@@ -8,11 +8,11 @@
 #include <new>
 
 // Setting static member variables.
-unsigned int Amplifier::beta = parameters::beta;  // Ic/Ib
-unsigned int Amplifier::Rload = parameters::Rload;  // Ohms
-unsigned int Amplifier::Rsource = parameters::Rsource;  // Ohms
-unsigned int Amplifier::max_Vcc = parameters::max_Vcc;  // Volts
-unsigned int Amplifier::max_resistor = parameters::max_resistor; // Ohms
+float Amplifier::beta = parameters::beta;  // Ic/Ib
+float Amplifier::Rload = parameters::Rload;  // Ohms
+float Amplifier::Rsource = parameters::Rsource;  // Ohms
+float Amplifier::max_Vcc = parameters::max_Vcc;  // Volts
+float Amplifier::max_resistor = parameters::max_resistor; // Ohms
 float Amplifier::Vt = parameters::Vt;  // Volts
 float Amplifier::VBE = parameters::VBE;  // Volts
 
@@ -21,14 +21,7 @@ int main() {
   std::array<Amplifier, parameters::population> pop;
   std::cout << "Population Initialized" << std::endl;
 
-  // Randomize the population.
-  for (unsigned int i = 0; i < parameters::population; i++) {
-    pop[i].randomize();
-    std::cout << "\rRandomizing population: ";
-    std::cout << i * 100 / parameters::population + 1 << "%";
-  }
-  std::cout << std::endl;
-  
+    
   // Evolve the population.
   geneticAlgorithm(pop, parameters::generations);
 
@@ -41,12 +34,22 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
   // Takes an array of amplifier objecs with some Evaluate() function, and 
   // evolves them according to lossFunction().
   
+  // Randomize the population.
+  for (unsigned int i = 0; i < parameters::population; i++) {
+    pop[i].randomize();
+    std::cout << "\rRandomizing population: ";
+    std::cout << i * 100 / parameters::population + 1 << "%";
+  }
+  std::cout << std::endl;
+
+  
   for (unsigned int i = 0; i < generations; i++) {
     
     std::cout << "\rEvolving population: " << i * 100 / generations + 1 << "%";
 
     // Sort the population from worst to best.
     std::sort(pop.begin(), pop.end(), Amplifier::SortByPerformance);
+    std::cout << " Loss: " << Amplifier::LossFunction(pop[parameters::population - 1]);
 
     // Regenerate the first half from the second half.
     for (unsigned int i = 0; i < parameters::population / 2; i++) {
@@ -62,12 +65,32 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
   std::cout << std::endl;
 }
 
-void showBest(std::array<Amplifier, parameters::population>
-                             (&pop)) {
-  // TODO
+void showBest(std::array<Amplifier, parameters::population>(&pop)) {
+  // Print the components and performance metrics of the best amplifier.
+
+  // Sort the population from worst to best.
+  std::sort(pop.begin(), pop.end(), Amplifier::SortByPerformance);
+  
+  // Get best amplifier.
+  Amplifier best_amplifier = pop[parameters::population - 1];
+
+  // Print its stats.
+  std::cout << "Highest Performing Amplifier\n";
+  std::cout << "  Components:\n";
+  std::cout << "    Vcc: " << best_amplifier.get_Vcc() << "\n";
+  std::cout << "    R1: " << best_amplifier.get_R1() << "\n";
+  std::cout << "    R2: " << best_amplifier.get_R2() << "\n";
+  std::cout << "    R3: " << best_amplifier.get_R3() << "\n";
+  std::cout << "    R4: " << best_amplifier.get_R4() << "\n";
+  std::cout << "    Rc1: " << best_amplifier.get_Rc1() << "\n";
+  std::cout << "    Re1: " << best_amplifier.get_Re1() << "\n";
+  std::cout << "    Re2: " << best_amplifier.get_Re2() << "\n";
+  std::cout << "  Performance:\n";
+  std::cout << "    Rin: " << best_amplifier.get_Rin() << "\n";
+
 }
 
-Amplifier mutate(Amplifier amp) {
+Amplifier mutate(const Amplifier &amp) {
   // Takes an Amplifier and returns a new amplifier modified from the one
   // provided.
   std::random_device rd;  // Get random number from hardware.
@@ -96,6 +119,5 @@ Amplifier mutate(Amplifier amp) {
                                                   parameters::max_resistor));
   new_amp.set_Re2(std::min((1 + mutation_distribution(eng)) * amp.get_Re2(), 
                                                   parameters::max_resistor));
-
   return new_amp;
 }
