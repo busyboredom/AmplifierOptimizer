@@ -11,7 +11,8 @@ namespace parameters {
   const float VBE = 0.7;  // Volts
 
   const unsigned int generations = 10000;
-  const unsigned int population = 10000;
+  const unsigned int population = 1000;
+  const float max_mutation = 0.5;
 }
 //-----------------------------------------------------------------------------
 
