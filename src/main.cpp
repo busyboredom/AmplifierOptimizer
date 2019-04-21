@@ -57,9 +57,9 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
     };
 
     // Evaluate population.
-    for (Amplifier amp : pop) {
+    for (unsigned int i = 0; i < parameters::population; i++) {
       // TODO: Thread this.
-      amp.Evaluate();
+      pop[i].Evaluate();
     };
   };
   std::cout << std::endl;
@@ -72,7 +72,7 @@ void showBest(std::array<Amplifier, parameters::population>(&pop)) {
   std::sort(pop.begin(), pop.end(), Amplifier::SortByPerformance);
   
   // Get best amplifier.
-  Amplifier best_amplifier = pop[parameters::population - 1];
+  Amplifier best_amplifier(pop[parameters::population - 1]);
 
   // Print its stats.
   std::cout << "Highest Performing Amplifier\n";

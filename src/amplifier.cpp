@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-Amplifier::Amplifier() {}
+Amplifier::Amplifier() {};
 
 Amplifier::Amplifier(const Amplifier &amp) {
     // Design variables:
