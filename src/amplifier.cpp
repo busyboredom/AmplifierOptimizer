@@ -24,7 +24,7 @@ Amplifier::Amplifier(const Amplifier &amp) {
     Rout = amp.Rout;
     Vpp = amp.Vpp;
     power = amp.power;
-    gain = amp.gain;
+    Av = amp.Av;
 
 };
 
@@ -36,7 +36,7 @@ void Amplifier::randomize() {
   std::mt19937 eng(rd());  // Seed the generator.
   // Define Distributions.
   std::uniform_int_distribution<> resistor_distribution(0, max_resistor);
-  std::uniform_int_distribution<> Vcc_distribution(0, max_Vcc);
+  std::uniform_int_distribution<> Vcc_distribution(1, max_Vcc);
 
   // Set random Vcc and resistor values.
   Vcc = Vcc_distribution(eng);
@@ -55,9 +55,32 @@ float Amplifier::LossFunction(Amplifier const &amp) {
   float loss = 0;
   // Rin loss
   loss += amp.Rin * parameters::Rin_coefficient;
-  if (amp.Rin < parameters::min_Rin) {
+  if (amp.Rin < parameters::min_Rin || amp.Rin < 0) {
     loss += parameters::min_max_failure;
   }
+
+  // Rout loss
+  loss += amp.Rout * parameters::Rout_coefficient;
+  if (amp.Rout > parameters::max_Rout || amp.Rout < 0) {
+    loss += parameters::min_max_failure;
+  }
+
+  // Vth1 loss
+  if (amp.Vth1 < parameters::VBE) {
+    loss += parameters::min_max_failure;
+  }
+
+  // Vth2 loss
+  if (amp.Vth2 < parameters::VBE) {
+    loss += parameters::min_max_failure;
+  }
+
+  // Av loss
+  loss += amp.Av * parameters::Av_coefficient;
+  if (amp.Av < parameters::min_Av) {
+    loss += parameters::min_max_failure;
+  }
+
 
   return loss;
 }
@@ -77,15 +100,32 @@ void Amplifier::Evaluate() {
   calculate_Rpi1();
   calculate_Rth1();
   calculate_Rin();
+
+  calculate_Vth2();
+  calculate_Rth2();
+  calculate_Ib2();
+  calculate_Icq2();
+  calculate_Rpi2();
+  calculate_Rout();
+
+  calculate_Vo();
+  calculate_Vo1();
+  calculate_Av2();
+  calculate_Av1();
+  calculate_Avs();
+  calculate_Av();
+  //std::cout << Rpi1 << std:: endl;
 } 
 
 //--------------------------Behavior Calculations------------------------------
+
+// Rin --------------------------------
 void Amplifier::calculate_Rin() {
-  Rin = Rth1 * Rpi1 / (Rth1 + Rpi1);
+  Rin = 1 / (1/Rth1 + 1/Rpi1);
 }
     
 void Amplifier::calculate_Rth1() {
-  Rth1 = R1 * R2 / (R1 + R2);
+  Rth1 = 1 / (1/R1 + 1/R2);
 }
 
 void Amplifier::calculate_Rpi1() {
@@ -106,6 +146,63 @@ void Amplifier::calculate_Vth1() {
   Vth1 = Vcc * R2 / (R1 + R2);
 }
 
+//Rout --------------------------------
+
+void Amplifier::calculate_Rout() {
+  Rout = 1 / (1/Re2 + 1/((Rpi2 + 1 / (1/Rc1 + 1/Rth2)) / (parameters::beta + 1)));
+}
+
+void Amplifier::calculate_Rpi2() {
+  Rpi2 = parameters::beta * parameters::Vt / Icq2;
+}
+
+void Amplifier::calculate_Icq2() {
+  Icq2 = parameters::beta * Ib2;
+}
+
+void Amplifier::calculate_Ib2() {
+  float numerator = Vth2 - parameters::VBE;
+  float denominator = Rth2 + (parameters::beta + 1) * Re2;
+  Ib2 = numerator / denominator;
+}
+
+void Amplifier::calculate_Vth2() {
+  Vth2 = Vcc * R4 / (R3 + R4);
+}
+
+void Amplifier::calculate_Rth2() {
+  Rth2 = 1 / (1/R3 + 1/R4);
+}
+
+//Av-----------------------------------
+
+void Amplifier::calculate_Av() {
+  Av = Avs * Av1 * Av2;
+}
+
+void Amplifier::calculate_Avs() {
+  Avs = Rin / (parameters::Rsource + Rin);
+}
+
+void Amplifier::calculate_Av1() {
+  Av1 = Vo1 / (Ib1 * Rpi1);
+}
+
+void Amplifier::calculate_Av2() {
+  Av2 = Vo / Vo1;
+}
+
+void Amplifier::calculate_Vo1() {
+  float beta = parameters::beta;
+  float Rload = parameters::Rload;
+  Vo1 = Ib2 * (Rpi2 + (beta + 1) * 1 / (1/Re2 + 1/Rload));
+}
+
+void Amplifier::calculate_Vo() {
+  float beta = parameters::beta;
+  float Rload = parameters::Rload;
+  Vo = (beta + 1) * Ib2 * 1 / (1/Re2 + 1/Rload);
+}
 //-----------------------------------------------------------------------------
 
 //--------------------------------Accessors------------------------------------
@@ -158,8 +255,8 @@ float Amplifier::get_power() const{
   return power;
 }
 
-float Amplifier::get_gain() const{
-  return gain;
+float Amplifier::get_Av() const{
+  return Av;
 }
 
 float Amplifier::get_Icq1() const{

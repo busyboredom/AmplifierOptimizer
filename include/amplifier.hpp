@@ -27,7 +27,7 @@ class Amplifier {
     float Rout;
     float Vpp;
     float power;
-    float gain;
+    float Av;
     
     //Intermediates:
     float Rpi1;
@@ -42,6 +42,11 @@ class Amplifier {
     float Vceq2;
     float Vth1;
     float Vth2;
+    float Avs;
+    float Av1;
+    float Av2;
+    float Vo;
+    float Vo1;
 
     //--------------------------Behavior Calculations--------------------------
     void calculate_Rin();
@@ -55,6 +60,31 @@ class Amplifier {
     void calculate_Ib1();
 
     void calculate_Vth1();
+
+    void calculate_Rout();
+
+    void calculate_Rpi2();
+
+    void calculate_Icq2();
+
+    void calculate_Ib2();
+
+    void calculate_Vth2();
+
+    void calculate_Rth2();
+
+    void calculate_Av();
+
+    void calculate_Avs();
+
+    void calculate_Av1();
+
+    void calculate_Av2();
+
+    void calculate_Vo1();
+
+    void calculate_Vo();
+
     //-------------------------------------------------------------------------
 
 
@@ -91,7 +121,7 @@ class Amplifier {
     float get_Rout() const;
     float get_Vpp() const;
     float get_power() const;
-    float get_gain() const;
+    float get_Av() const;
     float get_Icq1() const;
     float get_Vceq1() const;
 

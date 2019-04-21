@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
-#include <array>
+#include <vector>
 #include <new>
 
 // Setting static member variables.
@@ -18,7 +18,7 @@ float Amplifier::VBE = parameters::VBE;  // Volts
 
 int main() {
   // Initialize population.
-  std::array<Amplifier, parameters::population> pop;
+  std::vector<Amplifier> pop(parameters::population);
   std::cout << "Population Initialized" << std::endl;
 
     
@@ -29,7 +29,7 @@ int main() {
   showBest(pop);
 }
 
-void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
+void geneticAlgorithm(std::vector<Amplifier> (&pop),
                                                          int generations) {
   // Takes an array of amplifier objecs with some Evaluate() function, and 
   // evolves them according to lossFunction().
@@ -43,9 +43,10 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
   std::cout << std::endl;
 
   
-  for (unsigned int i = 0; i < generations; i++) {
+  for (unsigned int i = 0; i < parameters::generations; i++) {
     
-    std::cout << "\rEvolving population: " << i * 100 / generations + 1 << "%";
+    std::cout << "\rEvolving population: " << i * 100 / parameters::generations + 1 << "%";
+    std::cout.flush();
 
     // Sort the population from worst to best.
     std::sort(pop.begin(), pop.end(), Amplifier::SortByPerformance);
@@ -65,7 +66,7 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
   std::cout << std::endl;
 }
 
-void showBest(std::array<Amplifier, parameters::population>(&pop)) {
+void showBest(std::vector<Amplifier> (&pop)) {
   // Print the components and performance metrics of the best amplifier.
 
   // Sort the population from worst to best.
@@ -87,8 +88,7 @@ void showBest(std::array<Amplifier, parameters::population>(&pop)) {
   std::cout << "    Re2: " << best_amplifier.get_Re2() << "\n";
   std::cout << "  Performance:\n";
   std::cout << "    Rin: " << best_amplifier.get_Rin() << "\n";
-
-}
+  std::cout << "    Rout: " << best_amplifier.get_Rout() << "\n";}
 
 void mutate(const Amplifier &amp, Amplifier &new_amp) {
   // Takes an Amplifier and returns a new amplifier modified from the one
@@ -101,8 +101,11 @@ void mutate(const Amplifier &amp, Amplifier &new_amp) {
                                parameters::max_mutation);
   
   // Set new Vcc and resistor values.
-  new_amp.set_Vcc(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Vcc(), 
-                                                       parameters::max_Vcc));
+  float new_Vcc = (1 + (float) mutation_distribution(eng)) * amp.get_Vcc();
+  new_Vcc = std::min(new_Vcc, parameters::max_Vcc);
+  new_Vcc = std::max(new_Vcc, parameters::min_Vcc);
+  new_amp.set_Vcc(new_Vcc);
+
   new_amp.set_R1(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R1(), 
                                                 parameters::max_resistor));
   new_amp.set_R2(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R2(), 

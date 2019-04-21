@@ -4,14 +4,14 @@
 
 #include "../include/amplifier.hpp"
 #include "../include/config.hpp"
-#include <array>
+#include <vector>
 
 
-void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop), int generations);
+void geneticAlgorithm(std::vector<Amplifier> (&pop), int generations);
   // Takes an array of amplifier objecs with some Evaluate() function, and 
   // evolves them according to Amplifier::SortByPerformance().
   
-void showBest(std::array<Amplifier, parameters::population> (&pop));
+void showBest(std::vector<Amplifier> (&pop));
   // Print the components and performance metrics of the best amplifier.
 
 void mutate(const Amplifier &amp, Amplifier &new_amp);
