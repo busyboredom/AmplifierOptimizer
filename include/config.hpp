@@ -18,11 +18,11 @@ namespace parameters {
 
   // Loss Function Parameters. The loss function will be the sum of all
   // weighted values. Values beyone their min or max will be heavily penalized.
-  const float Rin_coefficient = 1;
-  const float Rout_coefficient = -1000;
-  const float Vpp_coefficient = 10000;
-  const float power_coefficient = -1000;
-  const float gain_coefficient = 1000;
+  const float Rin_coefficient = -1;
+  const float Rout_coefficient = 1000;
+  const float Vpp_coefficient = -10000;
+  const float power_coefficient = 1000;
+  const float gain_coefficient = -1000;
   const float min_Rin = 10000;  // Ohms
   const float max_Rout = 100;  // Ohms
   const float min_Vpp = 5;  //  Volts

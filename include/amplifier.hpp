@@ -61,7 +61,7 @@ class Amplifier {
   public:
     explicit Amplifier();
 
-    explicit Amplifier(const Amplifier &amp);
+    Amplifier(const Amplifier &amp);
       // Sets initial Vcc and resistor values to random values.
 
     void randomize();
@@ -78,22 +78,22 @@ class Amplifier {
 
     
     //-----------------------------Accessors-----------------------------------
-    float get_Vcc();
-    float get_R1();
-    float get_R2();
-    float get_R3();
-    float get_R4();
-    float get_Rc1();
-    float get_Re1();
-    float get_Re2();
+    float get_Vcc() const;
+    float get_R1() const;
+    float get_R2() const;
+    float get_R3() const;
+    float get_R4() const;
+    float get_Rc1() const;
+    float get_Re1() const;
+    float get_Re2() const;
 
-    float get_Rin();
-    float get_Rout();
-    float get_Vpp();
-    float get_power();
-    float get_gain();
-    float get_Icq1();
-    float get_Vceq1();
+    float get_Rin() const;
+    float get_Rout() const;
+    float get_Vpp() const;
+    float get_power() const;
+    float get_gain() const;
+    float get_Icq1() const;
+    float get_Vceq1() const;
 
     void set_Vcc(float new_Vcc);
     void set_R1(float new_R1);

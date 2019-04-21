@@ -52,8 +52,8 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop),
     std::cout << " Loss: " << Amplifier::LossFunction(pop[parameters::population - 1]);
 
     // Regenerate the first half from the second half.
-    for (unsigned int i = 0; i < parameters::population / 2; i++) {
-      pop[i] = mutate(pop[i + parameters::population / 2]);
+    for (unsigned int i = 0; i <= parameters::population / 2; i++) {
+      mutate(pop[i + parameters::population / 2], pop[i]);
     };
 
     // Evaluate population.
@@ -90,34 +90,31 @@ void showBest(std::array<Amplifier, parameters::population>(&pop)) {
 
 }
 
-Amplifier mutate(const Amplifier &amp) {
+void mutate(const Amplifier &amp, Amplifier &new_amp) {
   // Takes an Amplifier and returns a new amplifier modified from the one
   // provided.
   std::random_device rd;  // Get random number from hardware.
   std::mt19937 eng(rd());  // Seed the generator.
     
-  std::uniform_int_distribution<>  // Define Distribution.
+  std::uniform_real_distribution<>  // Define Distribution.
     mutation_distribution((-1)*parameters::max_mutation, 
                                parameters::max_mutation);
   
-  Amplifier new_amp;  // New amplifier to be mutated from old amp.
-
   // Set new Vcc and resistor values.
-  new_amp.set_Vcc(std::min((1 + mutation_distribution(eng)) * amp.get_Vcc(), 
+  new_amp.set_Vcc(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Vcc(), 
                                                        parameters::max_Vcc));
-  new_amp.set_R1(std::min((1 + mutation_distribution(eng)) * amp.get_R1(), 
+  new_amp.set_R1(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R1(), 
                                                 parameters::max_resistor));
-  new_amp.set_R2(std::min((1 + mutation_distribution(eng)) * amp.get_R2(), 
+  new_amp.set_R2(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R2(), 
                                                 parameters::max_resistor));
-  new_amp.set_R3(std::min((1 + mutation_distribution(eng)) * amp.get_R3(), 
+  new_amp.set_R3(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R3(), 
                                                 parameters::max_resistor));
-  new_amp.set_R4(std::min((1 + mutation_distribution(eng)) * amp.get_R4(), 
+  new_amp.set_R4(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R4(), 
                                                 parameters::max_resistor));
-  new_amp.set_Rc1(std::min((1 + mutation_distribution(eng)) * amp.get_Rc1(), 
+  new_amp.set_Rc1(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Rc1(), 
                                                   parameters::max_resistor));
-  new_amp.set_Re1(std::min((1 + mutation_distribution(eng)) * amp.get_Re1(), 
+  new_amp.set_Re1(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Re1(), 
                                                   parameters::max_resistor));
-  new_amp.set_Re2(std::min((1 + mutation_distribution(eng)) * amp.get_Re2(), 
+  new_amp.set_Re2(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Re2(), 
                                                   parameters::max_resistor));
-  return new_amp;
 }

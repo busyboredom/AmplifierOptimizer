@@ -110,63 +110,63 @@ void Amplifier::calculate_Vth1() {
 
 //--------------------------------Accessors------------------------------------
 // Getters:
-float Amplifier::get_Vcc() {
+float Amplifier::get_Vcc() const {
   return Vcc;
 }
 
-float Amplifier::get_R1() {
+float Amplifier::get_R1() const{
   return R1;
 }
 
-float Amplifier::get_R2() {
+float Amplifier::get_R2() const{
   return R2;
 }
 
-float Amplifier::get_R3() {
+float Amplifier::get_R3() const{
   return R3;
 }
 
-float Amplifier::get_R4() {
+float Amplifier::get_R4() const{
   return R4;
 }
 
-float Amplifier::get_Rc1() {
+float Amplifier::get_Rc1() const{
   return Rc1;
 }
 
-float Amplifier::get_Re1() {
+float Amplifier::get_Re1() const{
   return Re1;
 }
 
-float Amplifier::get_Re2() {
+float Amplifier::get_Re2() const{
   return Re2;
 }
 
-float Amplifier::get_Rin() {
+float Amplifier::get_Rin() const{
   return Rin;
 }
 
-float Amplifier::get_Rout() {
+float Amplifier::get_Rout() const{
   return Rout;
 }
 
-float Amplifier::get_Vpp() {
+float Amplifier::get_Vpp() const{
   return Vpp;
 }
 
-float Amplifier::get_power() {
+float Amplifier::get_power() const{
   return power;
 }
 
-float Amplifier::get_gain() {
+float Amplifier::get_gain() const{
   return gain;
 }
 
-float Amplifier::get_Icq1() {
+float Amplifier::get_Icq1() const{
   return Icq1;
 }
 
-float Amplifier::get_Vceq1() {
+float Amplifier::get_Vceq1() const{
   return Vceq1;
 }
 

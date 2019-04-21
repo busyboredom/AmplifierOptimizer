@@ -14,7 +14,7 @@ void geneticAlgorithm(std::array<Amplifier, parameters::population> (&pop), int 
 void showBest(std::array<Amplifier, parameters::population> (&pop));
   // Print the components and performance metrics of the best amplifier.
 
-Amplifier mutate(Amplifier &amp);
+void mutate(const Amplifier &amp, Amplifier &new_amp);
   // Takes an Amplifier and returns a new amplifier modified from the one
   // provided.
 
