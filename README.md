@@ -5,7 +5,7 @@ The amplifier consistes of two cascaded BJT amplifiers. The first is a
 common emitter BJT amplifier with voltage diviter biasing and an emitter 
 resistor with bipass capacitor. 
 
-The second amplifier, isolated from the first by a coupling capacitor, is a 
+The second amplifier, isolated from the first by a coupling capacitor, is
 identical to the first but with a common collector, no collector resistor,
 and no bipass capacitor on the emitter resistor.
 
