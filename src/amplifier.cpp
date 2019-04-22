@@ -6,51 +6,6 @@
 
 #include <iostream>
 
-Amplifier::Amplifier() {};
-
-Amplifier::Amplifier(const Amplifier &amp) {
-    // Design variables:
-    Vcc = amp.get_Vcc();
-    R1 = amp.get_R1();
-    R2 = amp.get_R2();
-    R3 = amp.get_R3();
-    R4 = amp.get_R4();
-    Rc1 = amp.get_Rc1();
-    Re1 = amp.get_Re1();
-    Re2 = amp.get_Re2();
-  
-    // Behavior Metrics:
-    Rin = amp.get_Rin();
-    Rout = amp.get_Rout();
-    Vpp = amp.get_Vpp();
-    power = amp.get_power();
-    Av = amp.get_Av();
-
-     // Verification:
-    Ib1 = amp.get_Ib1();
-    Ib2 = amp.get_Ib2();
-    Vceq1 = amp.get_Vceq1();
-    Vceq2 = amp.get_Vceq1();
-
-    /*
-    // Intermediates:
-    float Rpi1;
-    float Rpi2;
-    float Rth1;
-    float Rth2;
-    float Icq1;
-    float Icq2;
-    float Vth1;
-    float Vth2;
-    float Avs;
-    float Av1;
-    float Av2;
-    float Vo;
-    float Vo1;
-    float Vpp1;
-    */
-};
-
 void Amplifier::Randomize() {
   // Randomizes the amplifier.
 
@@ -74,15 +29,18 @@ void Amplifier::Randomize() {
 
 bool Amplifier::isActiveMode() const {
   // returns true if the amplifier is in active mode. 
-  if (Vceq1 < 0.2 || Vceq2 < 0.2 || Vceq1 > Vcc || Vceq2 > Vcc 
-                                      || Ib1 < 0 || Ib2 < 0) {
+  if (Vceq1 < parameters::min_Vceq || 
+      Vceq2 < parameters::min_Vceq || 
+      Vceq1 > Vcc || Vceq2 > Vcc || 
+      Ib1 < 0 || Ib2 < 0) {
+
     return false;
   } else {
     return true;
   }
 }
 
-float Amplifier::LossAdd(float const old_loss, float const added_loss) {
+float Amplifier::LossAdd(const float old_loss, const float added_loss) {
   // Adds new_loss to loss, as long as the new total loss is not greater 
   // in magnitude than parameters::max_loss.
 
@@ -109,7 +67,7 @@ float Amplifier::LossFunction(const Amplifier &amp) {
 
   // Rout loss
   loss = LossAdd(loss, amp.get_Rout() * parameters::Rout_coefficient);
-  if (amp.get_Rout() < parameters::max_Rout || amp.get_Rout() < 0) {
+  if (amp.get_Rout() > parameters::max_Rout || amp.get_Rout() < 0) {
     loss = LossAdd(loss, parameters::min_max_failure);
   }
 
@@ -284,7 +242,7 @@ void Amplifier::calculate_Vpp1() {
 //power--------------------------------
 
 void Amplifier::calculate_power() {
-  power = parameters::VBE * (Ib1 + Ib2) + Vceq1 * Icq1 + Vceq2 + Icq2;
+  power = parameters::VBE * (Ib1 + Ib2) + Vceq1 * Icq1 + Vceq2 * Icq2;
 }
 
 void Amplifier::calculate_Vceq1() {

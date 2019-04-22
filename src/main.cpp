@@ -23,7 +23,7 @@ int main() {
   std::vector<Amplifier> pop;
   pop.reserve(parameters::population);
   pop.resize(parameters::population);
-  std::cout << "Population of " << pop.size() << " Initialized" << std::endl;
+  std::cout << std::fixed << "Population of " << pop.size() << " Initialized" << std::endl;
 
     
   // Evolve the population.

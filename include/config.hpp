@@ -11,11 +11,12 @@ namespace parameters {
   const float max_resistor = 1000000; // Ohms
   const float Vt = 0.026;  // Volts
   const float VBE = 0.7;  // Volts
+  const float min_Vceq = 0.2;  // Volts
 
   // Algorithm Parameters.
-  const unsigned int generations = 1000;
-  const unsigned int population = 1000;
-  const float max_mutation = 1;  // Set mutation = 0 for constant 100% mutation.
+  const unsigned int generations = 10000;
+  const unsigned int population = 10000;
+  const float max_mutation = 0;  // Set mutation = 0 for constant 100% mutation.
                                  // Do not set above 1.
   const float max_loss = 1000000000;
 

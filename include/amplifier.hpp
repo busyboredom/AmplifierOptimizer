@@ -84,11 +84,6 @@ class Amplifier {
 
 
   public:
-    explicit Amplifier();
-
-    Amplifier(const Amplifier &amp);
-      // Sets initial Vcc and resistor values to random values.
-
     void Randomize();
       // Randomizes the amplifier.
 
@@ -98,7 +93,7 @@ class Amplifier {
     void Evaluate();
       //TODO: Should calculate all the performance metrics.
     
-    static float LossAdd(float old_loss, float added_loss);
+    static float LossAdd(const float old_loss, const float added_loss);
       // Adds new_loss to loss, as long as the new total loss is not greater 
       // in magnitude than parameters::max_loss.
 
