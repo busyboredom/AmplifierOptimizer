@@ -29,17 +29,19 @@ class Amplifier {
     float power;
     float Av;
     
-    //Intermediates:
+    // Verification:
+    float Ib1;
+    float Ib2;
+    float Vceq1;
+    float Vceq2;
+
+    // Intermediates:
     float Rpi1;
     float Rpi2;
     float Rth1;
     float Rth2;
     float Icq1;
     float Icq2;
-    float Ib1;
-    float Ib2;
-    float Vceq1;
-    float Vceq2;
     float Vth1;
     float Vth2;
     float Avs;
@@ -47,43 +49,36 @@ class Amplifier {
     float Av2;
     float Vo;
     float Vo1;
+    float Vpp1;
 
     //--------------------------Behavior Calculations--------------------------
     void calculate_Rin();
-    
     void calculate_Rth1();
-
     void calculate_Rpi1();
-
     void calculate_Icq1();
-
     void calculate_Ib1();
-
     void calculate_Vth1();
 
     void calculate_Rout();
-
     void calculate_Rpi2();
-
     void calculate_Icq2();
-
     void calculate_Ib2();
-
     void calculate_Vth2();
-
     void calculate_Rth2();
 
     void calculate_Av();
-
     void calculate_Avs();
-
     void calculate_Av1();
-
     void calculate_Av2();
-
     void calculate_Vo1();
-
     void calculate_Vo();
+
+    void calculate_Vpp();
+    void calculate_Vpp1();
+
+    void calculate_Vceq1();
+    void calculate_Vceq2();
+    void calculate_power();
 
     //-------------------------------------------------------------------------
 
@@ -94,13 +89,20 @@ class Amplifier {
     Amplifier(const Amplifier &amp);
       // Sets initial Vcc and resistor values to random values.
 
-    void randomize();
+    void Randomize();
       // Randomizes the amplifier.
+
+    bool isActiveMode() const;
+      // returns true if the amplifier is in active mode. 
 
     void Evaluate();
       //TODO: Should calculate all the performance metrics.
+    
+    static float LossAdd(float old_loss, float added_loss);
+      // Adds new_loss to loss, as long as the new total loss is not greater 
+      // in magnitude than parameters::max_loss.
 
-    static float LossFunction(Amplifier const &amp);
+    static float LossFunction(const Amplifier &amp);
       // A loss function that can be used to compare two amplifiers.
 
     static bool SortByPerformance(const Amplifier &amp1, const Amplifier &amp2);
@@ -124,6 +126,11 @@ class Amplifier {
     float get_Av() const;
     float get_Icq1() const;
     float get_Vceq1() const;
+    float get_Vceq2() const;
+    float get_Ib1() const;
+    float get_Ib2() const;
+    float get_Vth1() const;
+    float get_Vth2() const;
 
     void set_Vcc(float new_Vcc);
     void set_R1(float new_R1);

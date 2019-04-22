@@ -10,25 +10,48 @@ Amplifier::Amplifier() {};
 
 Amplifier::Amplifier(const Amplifier &amp) {
     // Design variables:
-    Vcc = amp.Vcc;
-    R1 = amp.R1;
-    R2 = amp.R2;
-    R3 = amp.R3;
-    R4 = amp.R4;
-    Rc1 = amp.Rc1;
-    Re1 = amp.Re1;
-    Re2 = amp.Re2;
+    Vcc = amp.get_Vcc();
+    R1 = amp.get_R1();
+    R2 = amp.get_R2();
+    R3 = amp.get_R3();
+    R4 = amp.get_R4();
+    Rc1 = amp.get_Rc1();
+    Re1 = amp.get_Re1();
+    Re2 = amp.get_Re2();
   
     // Behavior Metrics:
-    Rin = amp.Rin;
-    Rout = amp.Rout;
-    Vpp = amp.Vpp;
-    power = amp.power;
-    Av = amp.Av;
+    Rin = amp.get_Rin();
+    Rout = amp.get_Rout();
+    Vpp = amp.get_Vpp();
+    power = amp.get_power();
+    Av = amp.get_Av();
 
+     // Verification:
+    Ib1 = amp.get_Ib1();
+    Ib2 = amp.get_Ib2();
+    Vceq1 = amp.get_Vceq1();
+    Vceq2 = amp.get_Vceq1();
+
+    /*
+    // Intermediates:
+    float Rpi1;
+    float Rpi2;
+    float Rth1;
+    float Rth2;
+    float Icq1;
+    float Icq2;
+    float Vth1;
+    float Vth2;
+    float Avs;
+    float Av1;
+    float Av2;
+    float Vo;
+    float Vo1;
+    float Vpp1;
+    */
 };
 
-void Amplifier::randomize() {
+void Amplifier::Randomize() {
   // Randomizes the amplifier.
 
   // Set up random number generation.
@@ -49,38 +72,74 @@ void Amplifier::randomize() {
   Re2 = resistor_distribution(eng);
 }
 
-float Amplifier::LossFunction(Amplifier const &amp) {
+bool Amplifier::isActiveMode() const {
+  // returns true if the amplifier is in active mode. 
+  if (Vceq1 < 0.2 || Vceq2 < 0.2 || Vceq1 > Vcc || Vceq2 > Vcc 
+                                      || Ib1 < 0 || Ib2 < 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+float Amplifier::LossAdd(float const old_loss, float const added_loss) {
+  // Adds new_loss to loss, as long as the new total loss is not greater 
+  // in magnitude than parameters::max_loss.
+
+  float new_loss;
+  // Check too big
+  if (old_loss + added_loss > 0) {
+    new_loss = std::min(old_loss + added_loss, parameters::max_loss);
+    return new_loss;
+  };
+  // Check too small
+  return new_loss = std::max(old_loss, (-1) * parameters::max_loss);
+}
+
+float Amplifier::LossFunction(const Amplifier &amp) {
   // A loss function that can be used to compare two amplifiers.
 
   float loss = 0;
+
   // Rin loss
-  loss += amp.Rin * parameters::Rin_coefficient;
-  if (amp.Rin < parameters::min_Rin || amp.Rin < 0) {
-    loss += parameters::min_max_failure;
+  loss = LossAdd(loss, amp.get_Rin() * parameters::Rin_coefficient);
+  if (amp.get_Rin() < parameters::min_Rin) {
+    loss = LossAdd(loss, parameters::min_max_failure);
   }
 
   // Rout loss
-  loss += amp.Rout * parameters::Rout_coefficient;
-  if (amp.Rout > parameters::max_Rout || amp.Rout < 0) {
-    loss += parameters::min_max_failure;
-  }
-
-  // Vth1 loss
-  if (amp.Vth1 < parameters::VBE) {
-    loss += parameters::min_max_failure;
-  }
-
-  // Vth2 loss
-  if (amp.Vth2 < parameters::VBE) {
-    loss += parameters::min_max_failure;
+  loss = LossAdd(loss, amp.get_Rout() * parameters::Rout_coefficient);
+  if (amp.get_Rout() < parameters::max_Rout || amp.get_Rout() < 0) {
+    loss = LossAdd(loss, parameters::min_max_failure);
   }
 
   // Av loss
-  loss += amp.Av * parameters::Av_coefficient;
-  if (amp.Av < parameters::min_Av) {
-    loss += parameters::min_max_failure;
+  loss = LossAdd(loss, amp.get_Av() * parameters::Av_coefficient);
+  if (amp.get_Av() < parameters::min_Av) {
+    loss = LossAdd(loss, parameters::min_max_failure);
   }
 
+  // Vpp loss
+  loss = LossAdd(loss, amp.get_Vpp() * parameters::Vpp_coefficient);
+  if (amp.get_Vpp() < parameters::min_Vpp) {
+    loss = LossAdd( loss, parameters::min_max_failure);
+  }
+
+  // power loss
+  loss = LossAdd(loss, amp.get_power() * parameters::power_coefficient);
+  if (amp.get_power() > parameters::max_power || amp.get_power() < 0) {
+    loss = LossAdd(loss, parameters::min_max_failure);
+  }
+
+  // Inactive loss / Realism
+  if (!amp.isActiveMode() || 
+        amp.get_Ib1() > 1 || 
+        amp.get_Ib2() > 1 || 
+        amp.get_Ib1() < 0.000000001 || 
+        amp.get_Ib2() < 0.000000001) {
+
+    loss = LossAdd(0, parameters::max_loss);
+  }
 
   return loss;
 }
@@ -94,26 +153,34 @@ bool Amplifier::SortByPerformance(Amplifier const &amp1, Amplifier const &amp2) 
 
 void Amplifier::Evaluate() {
   // Calculates all the behavior metrics.
-  calculate_Vth1();
-  calculate_Ib1();
-  calculate_Icq1();
-  calculate_Rpi1();
-  calculate_Rth1();
-  calculate_Rin();
+  calculate_Vth1();  // No requirements.
+  calculate_Rth1();  // No requirements.
+  calculate_Ib1();  // Needs Vth1, Rth1.
+  calculate_Icq1();  // Needs Ib1.
+  calculate_Rpi1();  // Needs Icq1. 
+  calculate_Rin();  // Needs Rth1, Rpi1.
 
-  calculate_Vth2();
-  calculate_Rth2();
-  calculate_Ib2();
-  calculate_Icq2();
-  calculate_Rpi2();
-  calculate_Rout();
+  calculate_Vth2();  // No requirements.
+  calculate_Rth2();  // No requirements.
+  calculate_Ib2();  // Needs Vth2, Rth2.
+  calculate_Icq2();  // Needs Ib2.
+  calculate_Rpi2();  // Needs Icq2.
+  calculate_Rout();  // Needs Rpi2, Rth2.
 
-  calculate_Vo();
-  calculate_Vo1();
-  calculate_Av2();
-  calculate_Av1();
-  calculate_Avs();
-  calculate_Av();
+  calculate_Vo();  // Needs Ib2.
+  calculate_Vo1();  // Needs Ib2, Rpi2.
+  calculate_Av2();  // Needs Vo, Vo1.
+  calculate_Av1();  // Needs Vo1, Ib1, Rpi1.
+  calculate_Avs();  // Needs Rin.
+  calculate_Av();  // Needs Avs, Av1, Av2.
+
+  calculate_Vpp1();  // Needs Icq1, Rth2, Rpi2.
+  calculate_Vpp();  // Needs Vpp1, Av2.
+
+  calculate_Vceq1();  // Needs Icq1, Ib1.
+  calculate_Vceq2();  // Needs Ib2.
+  calculate_power();  // Needs Ib1, Ib2, Vceq1, Icq1, Vceq2, Icq2.
+
   //std::cout << Rpi1 << std:: endl;
 } 
 
@@ -203,6 +270,30 @@ void Amplifier::calculate_Vo() {
   float Rload = parameters::Rload;
   Vo = (beta + 1) * Ib2 * 1 / (1/Re2 + 1/Rload);
 }
+
+//Vpp----------------------------------
+
+void Amplifier::calculate_Vpp() {
+  Vpp = Vpp1 * Av2;
+}
+
+void Amplifier::calculate_Vpp1() {
+  Vpp1 = 2 * Icq1 * 1 / (1/Rc1 + 1/Rth2 + 1/Rpi2);
+}
+
+//power--------------------------------
+
+void Amplifier::calculate_power() {
+  power = parameters::VBE * (Ib1 + Ib2) + Vceq1 * Icq1 + Vceq2 + Icq2;
+}
+
+void Amplifier::calculate_Vceq1() {
+  Vceq1 = Vcc - Icq1 * Rc1 - (parameters::beta + 1) * Ib1 * Re1;
+}
+
+void Amplifier::calculate_Vceq2() {
+  Vceq2 = Vcc - (parameters::beta + 1) * Ib2 * Re2;
+}
 //-----------------------------------------------------------------------------
 
 //--------------------------------Accessors------------------------------------
@@ -259,12 +350,28 @@ float Amplifier::get_Av() const{
   return Av;
 }
 
-float Amplifier::get_Icq1() const{
+float Amplifier::get_Ib1() const{
   return Icq1;
 }
 
 float Amplifier::get_Vceq1() const{
   return Vceq1;
+}
+
+float Amplifier::get_Ib2() const{
+  return Icq2;
+}
+
+float Amplifier::get_Vceq2() const{
+  return Vceq2;
+}
+
+float Amplifier::get_Vth1() const{
+  return Vth1;
+}
+
+float Amplifier::get_Vth2() const{
+  return Vth2;
 }
 
 // Setters:
