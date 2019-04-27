@@ -10,13 +10,13 @@
 #include <thread>
 
 // Setting static member variables.
-float Amplifier::beta = parameters::beta;  // Ic/Ib
-float Amplifier::Rload = parameters::Rload;  // Ohms
-float Amplifier::Rsource = parameters::Rsource;  // Ohms
-float Amplifier::max_Vcc = parameters::max_Vcc;  // Volts
-float Amplifier::max_resistor = parameters::max_resistor; // Ohms
-float Amplifier::Vt = parameters::Vt;  // Volts
-float Amplifier::VBE = parameters::VBE;  // Volts
+double Amplifier::beta = parameters::beta;  // Ic/Ib
+double Amplifier::Rload = parameters::Rload;  // Ohms
+double Amplifier::Rsource = parameters::Rsource;  // Ohms
+double Amplifier::max_Vcc = parameters::max_Vcc;  // Volts
+double Amplifier::max_resistor = parameters::max_resistor; // Ohms
+double Amplifier::Vt = parameters::Vt;  // Volts
+double Amplifier::VBE = parameters::VBE;  // Volts
 
 int main() {
   // Initialize population.
@@ -107,6 +107,11 @@ void showBest(std::vector<Amplifier> (&pop)) {
   std::cout << "        Ib1: " << best_amplifier.get_Ib1() << "\n";
   std::cout << "        Vceq2: " << best_amplifier.get_Vceq2() << "\n";
   std::cout << "        Ib2: " << best_amplifier.get_Ib2() << "\n";
+  std::cout << "        Avs: " << best_amplifier.get_Avs() << "\n";
+  std::cout << "        Av1: " << best_amplifier.get_Av1() << "\n";
+  std::cout << "        Av2: " << best_amplifier.get_Av2() << "\n";
+  std::cout << "        Vpp1: " << best_amplifier.get_Vpp1() << "\n";
+
 
   std::cout.flush();
 
@@ -124,23 +129,23 @@ void mutate(const Amplifier &amp, Amplifier &new_amp) {
                               parameters::max_mutation);
   
   // Set new Vcc and resistor values.
-  float new_Vcc = (1 + (float) mutation_distribution(eng)) * amp.get_Vcc();
+  double new_Vcc = (1 + (double) mutation_distribution(eng)) * amp.get_Vcc();
   new_Vcc = std::min(new_Vcc, parameters::max_Vcc);
   new_Vcc = std::max(new_Vcc, parameters::min_Vcc);
   new_amp.set_Vcc(new_Vcc);
 
-  new_amp.set_R1(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R1(), 
+  new_amp.set_R1(std::min((1 + (double) mutation_distribution(eng)) * amp.get_R1(), 
                                                 parameters::max_resistor));
-  new_amp.set_R2(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R2(), 
+  new_amp.set_R2(std::min((1 + (double) mutation_distribution(eng)) * amp.get_R2(), 
                                                 parameters::max_resistor));
-  new_amp.set_R3(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R3(), 
+  new_amp.set_R3(std::min((1 + (double) mutation_distribution(eng)) * amp.get_R3(), 
                                                 parameters::max_resistor));
-  new_amp.set_R4(std::min((1 + (float) mutation_distribution(eng)) * amp.get_R4(), 
+  new_amp.set_R4(std::min((1 + (double) mutation_distribution(eng)) * amp.get_R4(), 
                                                 parameters::max_resistor));
-  new_amp.set_Rc1(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Rc1(), 
+  new_amp.set_Rc1(std::min((1 + (double) mutation_distribution(eng)) * amp.get_Rc1(), 
                                                   parameters::max_resistor));
-  new_amp.set_Re1(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Re1(), 
+  new_amp.set_Re1(std::min((1 + (double) mutation_distribution(eng)) * amp.get_Re1(), 
                                                   parameters::max_resistor));
-  new_amp.set_Re2(std::min((1 + (float) mutation_distribution(eng)) * amp.get_Re2(), 
+  new_amp.set_Re2(std::min((1 + (double) mutation_distribution(eng)) * amp.get_Re2(), 
                                                   parameters::max_resistor));
 }

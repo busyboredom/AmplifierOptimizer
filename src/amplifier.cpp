@@ -40,11 +40,11 @@ bool Amplifier::isActiveMode() const {
   }
 }
 
-float Amplifier::LossAdd(const float old_loss, const float added_loss) {
+double Amplifier::LossAdd(const double old_loss, const double added_loss) {
   // Adds new_loss to loss, as long as the new total loss is not greater 
   // in magnitude than parameters::max_loss.
 
-  float new_loss;
+  double new_loss;
   // Check too big
   if (old_loss + added_loss > 0) {
     new_loss = std::min(old_loss + added_loss, parameters::max_loss);
@@ -54,10 +54,10 @@ float Amplifier::LossAdd(const float old_loss, const float added_loss) {
   return new_loss = std::max(old_loss, (-1) * parameters::max_loss);
 }
 
-float Amplifier::LossFunction(const Amplifier &amp) {
+double Amplifier::LossFunction(const Amplifier &amp) {
   // A loss function that can be used to compare two amplifiers.
 
-  float loss = 0;
+  double loss = 0;
 
   // Rin loss
   loss = LossAdd(loss, amp.get_Rin() * parameters::Rin_coefficient);
@@ -80,7 +80,7 @@ float Amplifier::LossFunction(const Amplifier &amp) {
   // Vpp loss
   loss = LossAdd(loss, amp.get_Vpp() * parameters::Vpp_coefficient);
   if (amp.get_Vpp() < parameters::min_Vpp) {
-    loss = LossAdd( loss, parameters::min_max_failure);
+    loss = LossAdd(loss, parameters::min_max_failure);
   }
 
   // power loss
@@ -93,8 +93,14 @@ float Amplifier::LossFunction(const Amplifier &amp) {
   if (!amp.isActiveMode() || 
         amp.get_Ib1() > 1 || 
         amp.get_Ib2() > 1 || 
-        amp.get_Ib1() < 0.000000001 || 
-        amp.get_Ib2() < 0.000000001) {
+        amp.get_Ib1() < 0.000000000001 || 
+        amp.get_Ib2() < 0.000000000001 ||
+        amp.get_Rin() != amp.get_Rin() ||
+        amp.get_Rout() != amp.get_Rout() ||
+        amp.get_Av() != amp.get_Av() ||
+        amp.get_Vpp() != amp.get_Vpp() ||
+        amp.get_power() != amp.get_power() ||
+        amp.get_Vpp() < 0) {
 
     loss = LossAdd(0, parameters::max_loss);
   }
@@ -104,8 +110,8 @@ float Amplifier::LossFunction(const Amplifier &amp) {
 
 bool Amplifier::SortByPerformance(Amplifier const &amp1, Amplifier const &amp2) {
   // For use in std::sort. Compared amplifiers according to LossFunction().
-  float loss1 = LossFunction(amp1);
-  float loss2 = LossFunction(amp2);
+  double loss1 = LossFunction(amp1);
+  double loss2 = LossFunction(amp2);
   return loss1 > loss2;
 }
 
@@ -125,10 +131,8 @@ void Amplifier::Evaluate() {
   calculate_Rpi2();  // Needs Icq2.
   calculate_Rout();  // Needs Rpi2, Rth2.
 
-  calculate_Vo();  // Needs Ib2.
-  calculate_Vo1();  // Needs Ib2, Rpi2.
-  calculate_Av2();  // Needs Vo, Vo1.
-  calculate_Av1();  // Needs Vo1, Ib1, Rpi1.
+  calculate_Av2();  // Needs Rpi2.
+  calculate_Av1();  // Needs Rpi2, Rpi1.
   calculate_Avs();  // Needs Rin.
   calculate_Av();  // Needs Avs, Av1, Av2.
 
@@ -162,8 +166,8 @@ void Amplifier::calculate_Icq1() {
 }
 
 void Amplifier::calculate_Ib1() {
-  float numerator = Vth1 - parameters::VBE;
-  float denominator = Rth1 + (parameters::beta + 1) * Re1;
+  double numerator = Vth1 - parameters::VBE;
+  double denominator = Rth1 + (parameters::beta + 1) * Re1;
   Ib1 = numerator / denominator;
 }
 
@@ -186,8 +190,8 @@ void Amplifier::calculate_Icq2() {
 }
 
 void Amplifier::calculate_Ib2() {
-  float numerator = Vth2 - parameters::VBE;
-  float denominator = Rth2 + (parameters::beta + 1) * Re2;
+  double numerator = Vth2 - parameters::VBE;
+  double denominator = Rth2 + (parameters::beta + 1) * Re2;
   Ib2 = numerator / denominator;
 }
 
@@ -210,33 +214,42 @@ void Amplifier::calculate_Avs() {
 }
 
 void Amplifier::calculate_Av1() {
-  Av1 = Vo1 / (Ib1 * Rpi1);
+  double beta = parameters::beta;
+  double Rload = parameters::Rload;
+  double numerator;
+  double denominator;
+  // numerator = (Rc1||Rth2||(Rpi2 + (beta + 1)(Re2||Rload)
+  numerator = beta * 
+    1 / (1/Rc1 + 1/Rth2 + 1/(Rpi2 + (beta + 1) * 1 / (1/Re2 + 1/Rload)));
+  denominator = Rpi1;
+  Av1 = numerator / denominator;
 }
 
 void Amplifier::calculate_Av2() {
-  Av2 = Vo / Vo1;
-}
-
-void Amplifier::calculate_Vo1() {
-  float beta = parameters::beta;
-  float Rload = parameters::Rload;
-  Vo1 = Ib2 * (Rpi2 + (beta + 1) * 1 / (1/Re2 + 1/Rload));
-}
-
-void Amplifier::calculate_Vo() {
-  float beta = parameters::beta;
-  float Rload = parameters::Rload;
-  Vo = (beta + 1) * Ib2 * 1 / (1/Re2 + 1/Rload);
+  double beta = parameters::beta;
+  double Rload = parameters::Rload;
+  double numerator;
+  double denominator;
+  // numerator = (beta + 1)(Re2||Rload)
+  numerator = (beta + 1) * 1 / (1/Re2 + 1/Rload);
+  denominator = Rpi2 + (beta + 1) * 1 / (1/Re2 + 1/Rload);
+  Av2 = numerator / denominator;
 }
 
 //Vpp----------------------------------
 
 void Amplifier::calculate_Vpp() {
-  Vpp = Vpp1 * Av2;
+  double beta = parameters::beta;
+  double Rload = parameters::Rload;
+  double Ve = (beta + 1) * Ib2 * 1 / (1/Re2 + 1/Rload);
+  double Vpp2 = std::min(2 * (Vceq2), 2 * ((Vcc - Vceq2) * Rload / (Re2 + Rload)));
+  Vpp = std::min(Vpp2, Vpp1);
 }
 
 void Amplifier::calculate_Vpp1() {
-  Vpp1 = 2 * Icq1 * 1 / (1/Rc1 + 1/Rth2 + 1/Rpi2);
+  double beta = parameters::beta;
+  double Rload = parameters::Rload;
+  Vpp1 = std::min(2 * Icq1 * 1 / (1/Rc1 + 1/Rth2 + 1 / (Rpi2 + (beta + 1) * 1 / (1/Re2 + 1/Rload))), Vceq1);
 }
 
 //power--------------------------------
@@ -256,112 +269,128 @@ void Amplifier::calculate_Vceq2() {
 
 //--------------------------------Accessors------------------------------------
 // Getters:
-float Amplifier::get_Vcc() const {
+double Amplifier::get_Vcc() const {
   return Vcc;
 }
 
-float Amplifier::get_R1() const{
+double Amplifier::get_R1() const{
   return R1;
 }
 
-float Amplifier::get_R2() const{
+double Amplifier::get_R2() const{
   return R2;
 }
 
-float Amplifier::get_R3() const{
+double Amplifier::get_R3() const{
   return R3;
 }
 
-float Amplifier::get_R4() const{
+double Amplifier::get_R4() const{
   return R4;
 }
 
-float Amplifier::get_Rc1() const{
+double Amplifier::get_Rc1() const{
   return Rc1;
 }
 
-float Amplifier::get_Re1() const{
+double Amplifier::get_Re1() const{
   return Re1;
 }
 
-float Amplifier::get_Re2() const{
+double Amplifier::get_Re2() const{
   return Re2;
 }
 
-float Amplifier::get_Rin() const{
+double Amplifier::get_Rin() const{
   return Rin;
 }
 
-float Amplifier::get_Rout() const{
+double Amplifier::get_Rout() const{
   return Rout;
 }
 
-float Amplifier::get_Vpp() const{
+double Amplifier::get_Vpp() const{
   return Vpp;
 }
 
-float Amplifier::get_power() const{
+double Amplifier::get_Vpp1() const{
+  return Vpp1;
+}
+
+double Amplifier::get_power() const{
   return power;
 }
 
-float Amplifier::get_Av() const{
+double Amplifier::get_Av() const{
   return Av;
 }
 
-float Amplifier::get_Ib1() const{
+double Amplifier::get_Avs() const{
+  return Avs;
+}
+
+double Amplifier::get_Av1() const{
+  return Av1;
+}
+
+double Amplifier::get_Av2() const{
+  return Av2;
+}
+
+double Amplifier::get_Ib1() const{
   return Icq1;
 }
 
-float Amplifier::get_Vceq1() const{
+double Amplifier::get_Vceq1() const{
   return Vceq1;
 }
 
-float Amplifier::get_Ib2() const{
+double Amplifier::get_Ib2() const{
   return Icq2;
 }
 
-float Amplifier::get_Vceq2() const{
+double Amplifier::get_Vceq2() const{
   return Vceq2;
 }
 
-float Amplifier::get_Vth1() const{
+double Amplifier::get_Vth1() const{
   return Vth1;
 }
 
-float Amplifier::get_Vth2() const{
+double Amplifier::get_Vth2() const{
   return Vth2;
 }
 
 // Setters:
-void Amplifier::set_Vcc(float new_Vcc) {
+void Amplifier::set_Vcc(double new_Vcc) {
   Vcc = new_Vcc;
 }
 
-void Amplifier::set_R1(float new_R1) {
+void Amplifier::set_R1(double new_R1) {
   R1 = new_R1;
 }
 
-void Amplifier::set_R2(float new_R2) {
+void Amplifier::set_R2(double new_R2) {
   R2 = new_R2;
 }
 
-void Amplifier::set_R3(float new_R3) {
+void Amplifier::set_R3(double new_R3) {
   R3 = new_R3;
 }
 
-void Amplifier::set_R4(float new_R4) {
+void Amplifier::set_R4(double new_R4) {
   R4 = new_R4;
 }
 
-void Amplifier::set_Rc1(float new_Rc1) {
+void Amplifier::set_Rc1(double new_Rc1) {
   Rc1 = new_Rc1;
 }
 
-void Amplifier::set_Re1(float new_Re1) {
+void Amplifier::set_Re1(double new_Re1) {
   Re1 = new_Re1;
 }
 
-void Amplifier::set_Re2(float new_Re2) {
+void Amplifier::set_Re2(double new_Re2) {
   Re2 = new_Re2;
 }
 //-----------------------------------------------------------------------------
