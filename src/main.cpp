@@ -41,14 +41,14 @@ void geneticAlgorithm(std::vector<Amplifier> (&pop), int generations) {
   for (unsigned int i = 0; i < parameters::population; i++) {
     pop[i].Randomize();
     std::cout << "\rRandomizing population: ";
-    std::cout << i * 100.0 / parameters::population << "%";
+    std::cout << (i + 1) * 100.0 / parameters::population << "%";
   }
   std::cout << std::endl;
 
   
   for (unsigned int gen = 0; gen < parameters::generations; gen++) {
     
-    std::cout << "\rEvolving population: " << gen * 100.0 / parameters::generations << "\%";
+    std::cout << "\rEvolving population: " << (gen + 1) * 100.0 / parameters::generations << "\%";
 
 
     // Evaluate population.
